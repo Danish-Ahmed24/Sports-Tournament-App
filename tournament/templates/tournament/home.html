@@ -1,0 +1,46 @@
+{% extends 'tournament/base.html' %}
+
+{% block title %}Home - Sports Tournament{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="bg-light p-5 rounded">
+            <h1 class="display-4">Welcome to Sports Tournament Manager</h1>
+            <p class="lead">Manage teams, tournaments, matches, and track player statistics all in one place.</p>
+            <hr class="my-4">
+            <p>Get started by registering an account or exploring tournaments.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="bi bi-trophy display-4 text-warning"></i>
+                <h5 class="card-title mt-3">Tournaments</h5>
+                <p class="card-text">Browse and join upcoming tournaments in your favorite sports.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="bi bi-people display-4 text-primary"></i>
+                <h5 class="card-title mt-3">Teams</h5>
+                <p class="card-text">Create or join teams to compete in tournaments.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="bi bi-bar-chart display-4 text-success"></i>
+                <h5 class="card-title mt-3">Statistics</h5>
+                <p class="card-text">Track player performance and tournament leaderboards.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+/* Custom styles for your project */
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+/* Card styling */
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Status badges */
+.badge-scheduled {
+    background-color: #0dcaf0;
+}
+
+.badge-completed {
+    background-color: #198754;
+}
+
+.badge-locked {
+    background-color: #6c757d;
+}
+
+/* Table styling */
+.table-hover tbody tr:hover {
+    background-color: rgba(0,0,0,0.075);
+}
