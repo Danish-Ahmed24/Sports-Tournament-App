@@ -217,73 +217,90 @@ Traditional tournament management systems lack the business logic and role-based
 
 ---
 
-### 3.5 Match System
+### 3.5 Tournament & Match System
 
 **Priority:** P1 (High)  
-**User Story:** "As a manager, I want to see upcoming matches so I know when my team plays."
+**User Story:** "As a manager, I want to see tournaments and their matches so I know when games are scheduled."
 
 #### Functional Requirements:
-- **FR-3.5.1:** System must support match creation (by admin or manager)
-- **FR-3.5.2:** Match must include:
+- **FR-3.5.1:** Tournaments must be created by admin
+- **FR-3.5.2:** Tournament must include:
+  - Name
+  - Start date
+  - Status: Voting / Active / Completed
+  - Assigned referee (foreign key to User, nullable until voting complete)
+  - Voting deadline (datetime)
+- **FR-3.5.3:** Tournaments default to "Voting" status when created
+- **FR-3.5.4:** Matches belong to a tournament
+- **FR-3.5.5:** Match must include:
+  - Tournament (foreign key)
   - Team A (foreign key to Team)
   - Team B (foreign key to Team)
   - Match date/time
-  - Status: Scheduled / Voting / Completed
-  - Assigned referee (foreign key to User, nullable)
-- **FR-3.5.3:** Matches default to "Scheduled" status
-- **FR-3.5.4:** System must display match list page with:
-  - Upcoming matches (status = Scheduled or Voting)
-  - Completed matches (status = Completed)
-- **FR-3.5.5:** Match detail page must show:
+  - Status: Scheduled / Completed
+- **FR-3.5.6:** System must display tournament list page with:
+  - Voting tournaments (managers can vote)
+  - Active tournaments (matches ongoing)
+  - Completed tournaments
+- **FR-3.5.7:** Tournament detail page must show:
+  - Tournament name and dates
+  - Voting status and assigned referee
+  - List of all matches in tournament
+  - Teams participating
+- **FR-3.5.8:** Match detail page must show:
   - Teams playing
   - Match date/time
-  - Current status
-  - Assigned referee (if voting completed)
+  - Tournament name
   - Results (if completed)
 
 #### Acceptance Criteria:
-- ✅ Matches page separates upcoming/completed
+- ✅ Tournaments page shows current voting status
+- ✅ Tournament detail shows all matches
 - ✅ Match cards show team names and date
 - ✅ Clicking match opens detail page
-- ✅ Status badge color-coded (blue=scheduled, yellow=voting, green=completed)
+- ✅ Status badges (blue=voting, green=active, grey=completed)
 
 ---
 
-### 3.6 Referee Voting System
+### 3.6 Referee Voting System (Tournament-Wide)
 
 **Priority:** P0 (Critical - Unique Feature!)  
-**User Story:** "As a manager, I want to vote for referees so match officials are selected fairly."
+**User Story:** "As a manager, I want to vote for a referee before the tournament starts so all matches are officiated by the most trusted referee."
 
 #### Functional Requirements:
-- **FR-3.6.1:** Each match must have a voting period before it occurs
-- **FR-3.6.2:** During voting period, managers can vote for ONE referee per match
-- **FR-3.6.3:** Managers can only vote for matches involving their team
-- **FR-3.6.4:** Vote must record: match, manager, referee voted for, timestamp
-- **FR-3.6.5:** Managers cannot change vote after submission
-- **FR-3.6.6:** Voting period must have deadline (e.g., 24 hours before match)
-- **FR-3.6.7:** After deadline, system must:
+- **FR-3.6.1:** Each tournament must have ONE voting period before it starts
+- **FR-3.6.2:** During voting period, ALL managers (regardless of participation) can vote for ONE referee
+- **FR-3.6.3:** Vote must record: tournament, manager, referee voted for, timestamp
+- **FR-3.6.4:** Managers cannot change vote after submission
+- **FR-3.6.5:** Voting period must have deadline (e.g., 48 hours before tournament start date)
+- **FR-3.6.6:** After deadline, system must:
   - Count votes per referee
-  - Assign referee with most votes
+  - Assign referee with most votes as tournament's official referee
   - Handle ties: select referee with higher experience
-  - Update match status to "Voting Complete"
-  - Set assigned_referee field
-- **FR-3.6.8:** Only assigned referee can submit match results
-- **FR-3.6.9:** System must display voting status: "Voting Open" / "Voting Closed" / "Referee Assigned"
+  - Update tournament status to "Voting Complete"
+  - Set tournament's assigned_referee field
+- **FR-3.6.7:** The winning referee submits results for ALL matches in the tournament
+- **FR-3.6.8:** Only the assigned tournament referee can submit any match results in that tournament
+- **FR-3.6.9:** System must display voting status: "Voting Open" / "Voting Closed" / "Referee Assigned: [Name]"
 
 #### Acceptance Criteria:
-- ✅ Voting page shows all available referees
+- ✅ Tournament voting page shows all available referees
 - ✅ Each referee card shows name and experience
 - ✅ Submit vote button confirms selection
-- ✅ Cannot vote twice for same match
-- ✅ After deadline, match shows assigned referee
+- ✅ Cannot vote twice for same tournament
+- ✅ ALL managers can vote, not just participating ones
+- ✅ After deadline, tournament page shows assigned referee
 - ✅ Tiebreaker correctly picks more experienced referee
-- ✅ Non-participating managers cannot vote
+- ✅ Winning referee sees ALL matches in that tournament on their dashboard
+- ✅ Only winning referee has "Submit Result" access for tournament matches
 
 #### Business Rules:
-- Both team managers must vote (or system uses default logic)
-- If no votes, assign random referee or most experienced
+- One referee per tournament (not per match)
+- All managers participate in voting (democratic system)
 - Referee cannot vote for themselves
+- If no votes cast, system assigns most experienced referee automatically
 - Voting deadline enforced server-side (not just UI)
+- Winning referee responsible for ALL match results in tournament
 
 ---
 
@@ -414,21 +431,28 @@ Invitation
 ├── created_at: DateTimeField
 └── updated_at: DateTimeField
 
-Match
-├── team_a: ForeignKey(Team, related_name='home_matches')
-├── team_b: ForeignKey(Team, related_name='away_matches')
-├── match_date: DateTimeField
-├── status: CharField (Scheduled/Voting/Completed)
+Tournament
+├── name: CharField
+├── start_date: DateTimeField
+├── status: CharField (Voting/Active/Completed)
 ├── assigned_referee: ForeignKey(User, null=True)
 ├── voting_deadline: DateTimeField
 └── created_at: DateTimeField
 
+Match
+├── tournament: ForeignKey(Tournament)
+├── team_a: ForeignKey(Team, related_name='home_matches')
+├── team_b: ForeignKey(Team, related_name='away_matches')
+├── match_date: DateTimeField
+├── status: CharField (Scheduled/Completed)
+└── created_at: DateTimeField
+
 RefereeVote
-├── match: ForeignKey(Match)
+├── tournament: ForeignKey(Tournament)
 ├── manager: ForeignKey(User)
 ├── referee: ForeignKey(User)
 ├── voted_at: DateTimeField
-└── unique_together: ['match', 'manager']
+└── unique_together: ['tournament', 'manager']
 
 MatchResult
 ├── match: OneToOneField(Match)
@@ -476,30 +500,36 @@ MatchResult
 12. Repeat for more players
 ```
 
-### 6.3 Manager Journey: Voting for Referee
+### 6.3 Manager Journey: Voting for Tournament Referee
 
 ```
-1. Login → See upcoming match on dashboard
-2. Click "Vote for Referee" link
-3. See list of all referees with experience
-4. Select one referee
-5. Confirm vote
-6. See "Vote Submitted" message
-7. Wait for voting deadline
-8. After deadline → See assigned referee on match page
+1. Login → See Manager Dashboard
+2. See notification: "Tournament X voting open"
+3. Click "Vote for Referee"
+4. See list of ALL available referees (with experience shown)
+5. Select one referee
+6. Confirm vote
+7. See "Vote Submitted" message
+8. Wait for voting deadline
+9. After deadline → Tournament page shows: "Official Referee: [Name]"
+10. That referee will handle ALL matches in the tournament
 ```
 
-### 6.4 Referee Journey: Submitting Results
+### 6.4 Referee Journey: Submitting Results for Tournament
 
 ```
-1. Login → See Referee Dashboard
-2. View assigned matches
-3. After match occurs → Click "Submit Result"
-4. Enter Team A score, Team B score
-5. Add optional notes
-6. Submit form
-7. Match status changes to "Completed"
-8. Results visible publicly
+1. Register as Referee → Enter name, experience
+2. Wait for tournament voting
+3. Get selected as tournament referee (most votes)
+4. Login → See Referee Dashboard
+5. View ALL matches in assigned tournament
+6. After each match occurs → Click "Submit Result"
+7. Enter Team A score, Team B score
+8. Add optional notes
+9. Submit form
+10. Match status changes to "Completed"
+11. Repeat for all matches in tournament
+12. Results visible publicly for all matches
 ```
 
 ---
