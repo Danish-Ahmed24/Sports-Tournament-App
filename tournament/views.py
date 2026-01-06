@@ -27,7 +27,7 @@ def signup_view(request):
                 experience=form.cleaned_data['experience']
             )
             login(request, user)
-            return redirect('index')
+            return redirect('role_based_attr')  
     else:
         form = SignUpForm()
 

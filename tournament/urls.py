@@ -8,4 +8,4 @@ urlpatterns = [
     path('login/',LoginView.as_view(template_name="tournament\login.html"),name='login'),
     path('logout/', LogoutView.as_view(next_page='index'), name='logout'),
     path('signup/',views.signup_view,name='signup'),
-]
+] 
