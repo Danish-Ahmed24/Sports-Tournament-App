@@ -7,7 +7,6 @@ ROLE_CHOICES = [
     ("MANAGER", "Manager"),
     ("REFEREE", "Referee"),
 ]
-
 PLAYER_POSITIONS = [
     ("ST", "Striker"),
     ("LW", "Left Wing"),
