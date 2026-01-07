@@ -1,12 +1,22 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
-from tournament.models import CustomUser, Manager, Player, Referee
-from .forms import BasicSignUpForm, ManagerSignUpForm, PlayerSignUpForm
+from tournament.models import CustomUser, Manager, Player, Referee, Team
+from .forms import BasicSignUpForm, TeamSignUpForm, PlayerSignUpForm
 
-@login_required
+@login_required 
 def index(request):
+    role = request.user.customUser.role 
+    if role == "PLAYER":
+        print("Player")
+    elif role == "MANAGER":
+        return render(request,"tournament/managerDashboard.html")
+    else:
+        #Refree
+        print("Refree")
     return render(request,"tournament/index.html")
 
 def signup_view(request):
@@ -33,10 +43,11 @@ def signup_view(request):
             if(role == "PLAYER"):
                 return redirect('details_player')
             elif(role == "MANAGER"):
-                return redirect('details_manager')
+                return redirect('details_team')
             else:
                 #referee
                 Referee.objects.create(customUser = customUser)
+                del request.session['customUser_pk']
                 return redirect("index")
               
     else:
@@ -45,19 +56,20 @@ def signup_view(request):
     return render(request, 'tournament/signup.html', {"form": form,"btn":"Next"})
 
 
-def details_manager(request):
+def details_team(request):
     if 'customUser_pk' not in request.session:
         return redirect('signup')
     if request.method == "POST":
-        form = ManagerSignUpForm(request.POST)
+        form = TeamSignUpForm(request.POST)
         if form.is_valid():
             teamName = form.cleaned_data['teamName']
             customUser = CustomUser.objects.get(pk=request.session['customUser_pk'])
-            Manager.objects.create(teamName=teamName,customUser=customUser)
+            manager = Manager.objects.create(customUser=customUser)
+            Team.objects.create(teamName=teamName,manager=manager)
             del request.session['customUser_pk']
             return redirect('index')
     else:
-        form = ManagerSignUpForm()
+        form = TeamSignUpForm()
     
     return render(request,"tournament/signup.html",{"form":form,"btn":"Done"})
 
@@ -77,3 +89,25 @@ def details_player(request):
         form = PlayerSignUpForm()
 
     return render(request,"tournament/signup.html",{"form":form,"btn":"Done"})
+
+@login_required
+def view_available_players(request):
+    available_players = Player.objects.filter(isAvailable = True)
+
+    context={
+        "available_players":available_players
+    }
+    return render(request,'tournament/allPlayers.html',context)
+
+
+def player_profile(request,pk):
+    try:
+        player = Player.objects.get(pk=pk)
+        if not player.isAvailable:
+            return redirect('index')
+        context={
+            "player":player
+        }
+        return render(request,"tournament/playerProfile.html",context)
+    except ObjectDoesNotExist:
+        return HttpResponse("DOes not exits go back")

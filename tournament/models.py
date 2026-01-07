@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
 
 ROLE_CHOICES = [
     ("PLAYER", "Player"),
@@ -23,7 +24,7 @@ PLAYER_POSITIONS = [
 ]
 
 class CustomUser(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,related_name="customUser")
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default="PLAYER")
     name = models.CharField(max_length=100)
     experience = models.IntegerField(validators=[MinValueValidator(0)])
@@ -32,17 +33,29 @@ class CustomUser(models.Model):
         if self.pk:
             original = CustomUser.objects.get(pk=self.pk)
             if original.role != self.role:
-                raise ValueError("Role cannot be changed once assigned")
+                raise ValidationError("Role cannot be changed once assigned")
         super().save(*args, **kwargs)
 
-class Player(models.Model):
-    customUser = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    position = models.CharField(max_length=10, choices=PLAYER_POSITIONS)
-    age = models.IntegerField(validators=[MinValueValidator(18)])
-
 class Manager(models.Model):
-    customUser = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    teamName = models.CharField(max_length=30)
+    customUser = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="manager")
 
 class Referee(models.Model):
-    customUser = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    customUser = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="referee")
+
+class Team(models.Model):
+    teamName = models.CharField(max_length=50,unique=True)
+    manager=models.OneToOneField(Manager, on_delete=models.CASCADE,related_name="team")
+
+    # players , manager
+    
+class Player(models.Model):
+    customUser = models.OneToOneField(CustomUser, on_delete=models.CASCADE,related_name="player")
+    position = models.CharField(max_length=10, choices=PLAYER_POSITIONS)
+    age = models.IntegerField(validators=[MinValueValidator(18)])
+    # abi form and view mein change nhi kia hai mene 
+    # bool suppose kia hai not string 
+    # [("AVAILABLE","Free Agent"),("SIGNED","on a team")]
+    isAvailable = models.BooleanField(default=True) 
+    team = models.ForeignKey(Team, on_delete=models.SET_NULL,related_name="players",blank=True,null=True)
+
+
