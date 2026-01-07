@@ -1,0 +1,90 @@
+{% extends "tournament/base.html" %}
+{% block title %}{{ player.customUser.name }} - Profile{% endblock %}
+
+{% block body %}
+<!-- Back Button -->
+<a href="{% url 'view_available_players' %}" class="inline-flex items-center text-sky-500 hover:text-sky-600 mb-6">
+  <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+  </svg>
+  Back to Players
+</a>
+
+<!-- Profile Card -->
+<div class="bg-white rounded-lg shadow-lg overflow-hidden">
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-sky-400 to-sky-600 px-8 py-12">
+    <div class="flex items-center">
+      <div class="w-24 h-24 rounded-full bg-white text-sky-600 font-bold text-4xl flex items-center justify-center shadow-lg">
+        {{ player.customUser.name.0|upper }}
+      </div>
+      <div class="ml-6 text-white">
+        <h1 class="text-4xl font-bold mb-2">{{ player.customUser.name }}</h1>
+        <p class="text-xl text-sky-100">{{ player.get_position_display }}</p>
+        <div class="mt-3">
+          {% if player.isAvailable %}
+            <span class="inline-block bg-green-500 text-white text-sm font-semibold px-4 py-1.5 rounded-full shadow">
+              ✓ Available
+            </span>
+          {% else %}
+            <span class="inline-block bg-white text-gray-700 text-sm font-semibold px-4 py-1.5 rounded-full shadow">
+              Signed
+            </span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="px-8 py-8">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Player Statistics</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-blue-50 rounded-lg p-6 border border-blue-200">
+        <p class="text-blue-600 text-sm font-semibold uppercase mb-2">Age</p>
+        <p class="text-4xl font-bold text-gray-800">{{ player.age }}</p>
+        <p class="text-gray-600 text-sm mt-1">years old</p>
+      </div>
+
+      <div class="bg-purple-50 rounded-lg p-6 border border-purple-200">
+        <p class="text-purple-600 text-sm font-semibold uppercase mb-2">Experience</p>
+        <p class="text-4xl font-bold text-gray-800">{{ player.customUser.experience }}</p>
+        <p class="text-gray-600 text-sm mt-1">years</p>
+      </div>
+
+      <div class="bg-green-50 rounded-lg p-6 border border-green-200">
+        <p class="text-green-600 text-sm font-semibold uppercase mb-2">Position</p>
+        <p class="text-2xl font-bold text-gray-800">{{ player.position }}</p>
+        <p class="text-gray-600 text-sm mt-1">{{ player.get_position_display }}</p>
+      </div>
+    </div>
+
+    <!-- Team Info -->
+    {% if player.team %}
+      <div class="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-8">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Current Team</h3>
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-2xl font-bold text-gray-800">{{ player.team.teamName }}</p>
+            <p class="text-gray-600 text-sm">Manager: {{ player.team.manager.customUser.name }}</p>
+          </div>
+          <div class="w-16 h-16 rounded-full bg-sky-100 text-sky-600 font-bold text-xl flex items-center justify-center">
+            {{ player.team.teamName.0|upper }}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Invite Button -->
+    {% if user.is_authenticated and user.customUser.role == "MANAGER" and player.isAvailable %}
+      <form method="post" class="flex justify-center">
+        {% csrf_token %}
+        <button type="submit" class="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-8 py-3 rounded-lg shadow-lg transition">
+          Send Invitation to Join Team
+        </button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

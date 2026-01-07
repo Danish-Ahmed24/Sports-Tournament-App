@@ -1,9 +1,0 @@
-{% extends "tournament/base.html" %}
-{% block title %}signup{% endblock title %}
-{% block body %}
-<form method="post">
-    {% csrf_token %}
-    {{form.as_p}}
-    <button type="submit">{{btn}}</button>
-</form>
-{% endblock body %}

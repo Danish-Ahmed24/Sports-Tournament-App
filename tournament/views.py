@@ -7,17 +7,40 @@ from django.contrib.auth.models import User
 from tournament.models import CustomUser, Manager, Player, Referee, Team
 from .forms import BasicSignUpForm, TeamSignUpForm, PlayerSignUpForm
 
-@login_required 
 def index(request):
-    role = request.user.customUser.role 
-    if role == "PLAYER":
-        print("Player")
-    elif role == "MANAGER":
-        return render(request,"tournament/managerDashboard.html")
-    else:
-        #Refree
-        print("Refree")
-    return render(request,"tournament/index.html")
+    """Homepage - shows landing page or redirects to dashboard"""
+    if request.user.is_authenticated:
+        role = request.user.customUser.role
+        if role == "PLAYER":
+            return redirect('player_dashboard')
+        elif role == "MANAGER":
+            return redirect('manager_dashboard')
+        else:
+            return redirect('referee_dashboard')
+    
+    # Show landing page for guests
+    return render(request, "tournament/index.html")
+
+@login_required
+def manager_dashboard(request):
+    """Manager's dashboard"""
+    if request.user.customUser.role != "MANAGER":
+        return redirect('index')
+    return render(request, "tournament/manager/dashboard.html")
+
+@login_required
+def player_dashboard(request):
+    """Player's dashboard"""
+    if request.user.customUser.role != "PLAYER":
+        return redirect('index')
+    return render(request, "tournament/player/dashboard.html")
+
+@login_required
+def referee_dashboard(request):
+    """Referee's dashboard"""
+    if request.user.customUser.role != "REFEREE":
+        return redirect('index')
+    return render(request, "tournament/referee/dashboard.html")
 
 def signup_view(request):
     if request.user.is_authenticated:
@@ -53,7 +76,7 @@ def signup_view(request):
     else:
         form = BasicSignUpForm()
 
-    return render(request, 'tournament/signup.html', {"form": form,"btn":"Next"})
+    return render(request, 'tournament/auth/signup.html', {"form": form,"btn":"Next"})
 
 
 def details_team(request):
@@ -71,7 +94,7 @@ def details_team(request):
     else:
         form = TeamSignUpForm()
     
-    return render(request,"tournament/signup.html",{"form":form,"btn":"Done"})
+    return render(request,"tournament/auth/signup.html",{"form":form,"btn":"Done"})
 
 def details_player(request):
     if 'customUser_pk' not in request.session:
@@ -88,7 +111,7 @@ def details_player(request):
     else:
         form = PlayerSignUpForm()
 
-    return render(request,"tournament/signup.html",{"form":form,"btn":"Done"})
+    return render(request,"tournament/auth/signup.html",{"form":form,"btn":"Done"})
 
 @login_required
 def view_available_players(request):
@@ -97,7 +120,7 @@ def view_available_players(request):
     context={
         "available_players":available_players
     }
-    return render(request,'tournament/allPlayers.html',context)
+    return render(request,'tournament/player/browse.html',context)
 
 
 def player_profile(request,pk):
@@ -108,6 +131,6 @@ def player_profile(request,pk):
         context={
             "player":player
         }
-        return render(request,"tournament/playerProfile.html",context)
+        return render(request,"tournament/player/profile.html",context)
     except ObjectDoesNotExist:
         return HttpResponse("DOes not exits go back")
