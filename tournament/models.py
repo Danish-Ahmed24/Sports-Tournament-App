@@ -28,6 +28,13 @@ class CustomUser(models.Model):
     name = models.CharField(max_length=100)
     experience = models.IntegerField(validators=[MinValueValidator(0)])
 
+    def save(self,*args, **kwargs):
+        if self.pk:
+            original = CustomUser.objects.get(pk=self.pk)
+            if original.role != self.role:
+                raise ValueError("Role cannot be changed once assigned")
+        super().save(*args, **kwargs)
+
 class Player(models.Model):
     customUser = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     position = models.CharField(max_length=10, choices=PLAYER_POSITIONS)
