@@ -78,10 +78,10 @@
 
     <!-- Invite Button -->
     {% if user.is_authenticated and user.customUser.role == "MANAGER" and player.isAvailable %}
-      <form method="post" class="flex justify-center">
+      <form method="post" action="{% url "send_invite" player.pk %}" class="flex justify-center">
         {% csrf_token %}
         <button type="submit" class="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-8 py-3 rounded-lg shadow-lg transition">
-          Send Invitation to Join Team
+          Send Invitation to Join Team 
         </button>
       </form>
     {% endif %}

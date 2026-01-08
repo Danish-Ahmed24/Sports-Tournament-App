@@ -51,6 +51,59 @@
   </a>
 </div>
 
+<!-- Sent Invitations -->
+<div class="bg-white rounded-lg shadow-md p-6 mb-8">
+  <h2 class="text-2xl font-bold text-gray-800 mb-6">Sent Invitations</h2>
+  
+  {% if invitations %}
+    <div class="space-y-4">
+      {% for invitation in invitations %}
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-sky-500 transition">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center flex-1">
+              <div class="w-12 h-12 rounded-full bg-sky-500 text-white font-bold flex items-center justify-center">
+                {{ invitation.player.customUser.name.0|upper }}
+              </div>
+              <div class="ml-4 flex-1">
+                <h4 class="font-semibold text-gray-800">{{ invitation.player.customUser.name }}</h4>
+                <p class="text-sm text-gray-600">{{ invitation.player.get_position_display }}</p>
+                <div class="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                  <span>💰 ${{ invitation.salary }}</span>
+                  <span>📅 {{ invitation.contract_length }} months</span>
+                  <span>🕒 {{ invitation.created_at|date:"M d, Y" }}</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              {% if invitation.status == 'P' %}
+                <span class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-3 py-1 rounded-full">
+                  ⏳ Pending
+                </span>
+              {% elif invitation.status == 'A' %}
+                <span class="bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full">
+                  ✓ Accepted
+                </span>
+              {% else %}
+                <span class="bg-red-100 text-red-700 text-xs font-semibold px-3 py-1 rounded-full">
+                  ✗ Rejected
+                </span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-12 text-gray-500">
+      <p class="text-lg font-medium">No invitations sent yet</p>
+      <p class="text-sm mt-2">Browse available players and send your first invitation!</p>
+      <a href="{% url 'view_available_players' %}" class="inline-block mt-4 bg-sky-500 hover:bg-sky-600 text-white px-6 py-2 rounded-lg transition">
+        Browse Players
+      </a>
+    </div>
+  {% endif %}
+</div>
+
 <!-- Team Roster -->
 {% if user.customUser.manager.team %}
   <div class="bg-white rounded-lg shadow-md p-6">

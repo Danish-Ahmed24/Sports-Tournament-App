@@ -1,3 +1,4 @@
+from typing import Required
 from django.conf import settings
 from django.db import models
 from django.core.validators import MinValueValidator
@@ -21,6 +22,12 @@ PLAYER_POSITIONS = [
     ("LB", "Left Back"),
     ("RB", "Right Back"),
     ("GK", "Goal Keeper"),
+]
+
+INVITATION_STATUS = [
+    ("P","Pending"),
+    ("A","Accepted"),
+    ("R","Rejected"),
 ]
 
 class CustomUser(models.Model):
@@ -59,3 +66,31 @@ class Player(models.Model):
     team = models.ForeignKey(Team, on_delete=models.SET_NULL,related_name="players",blank=True,null=True)
 
 
+class Invitation(models.Model):
+    manager = models.ForeignKey(Manager, on_delete=models.CASCADE, related_name="sent_invitations")
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name="received_invitations")
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="invitations")
+    
+    salary = models.DecimalField(max_digits=10, decimal_places=2)
+    contract_length = models.IntegerField(validators=[MinValueValidator(1)])
+    message = models.TextField(blank=True)  # Optional
+    
+    status = models.CharField(max_length=1, choices=INVITATION_STATUS, default='P')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    responded_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+
+    def save(self,*args, **kwargs):
+        if self.status == 'P':
+            x = Invitation.objects.filter(manager=self.manager,
+                                          player=self.player,
+                                          status = 'P',
+                                          ).exclude(pk=self.pk).exists()
+            if x:
+                raise ValidationError("You already have a pending invitation for this player")
+        super().save(*args, **kwargs)
+    def __str__(self):
+        return f"{self.team.teamName} → {self.player.customUser.name} (${self.salary})"

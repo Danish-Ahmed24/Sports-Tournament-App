@@ -1,7 +1,7 @@
 # tournament/forms.py
 from django import forms
 from .validators import validate_email_unique,validate_username_unique
-from tournament.models import CustomUser, Player, Team
+from tournament.models import CustomUser, Invitation, Player, Team
 
 class BasicSignUpForm(forms.ModelForm):
     username=forms.CharField(max_length=30, required=True,validators=[validate_username_unique])
@@ -21,3 +21,9 @@ class PlayerSignUpForm(forms.ModelForm):
     class Meta:
         model = Player
         fields=['position','age']
+
+class InvitationForm(forms.ModelForm):
+    
+    class Meta:
+        model = Invitation
+        fields = ['salary','contract_length','message']

@@ -30,7 +30,7 @@
             <span class="font-semibold">{{ player.customUser.experience }} years</span>
           </div>
         </div>
-
+ 
         <!-- Buttons -->
         <div class="flex gap-2">
           <a href="{% url 'player_profile' player.pk %}" 
@@ -38,7 +38,7 @@
             View Profile
           </a>
           {% if user.customUser.role == "MANAGER" %}
-            <form method="post" class="flex-1">
+            <form method="post" action="{% url "send_invite" player.pk %}" class="flex-1">
               {% csrf_token %}
               <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-medium py-2 rounded-lg transition">
                 Invite

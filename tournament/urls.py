@@ -10,7 +10,7 @@ urlpatterns = [
     path('signup/', views.signup_view, name='signup'),
     path('details/player/', views.details_player, name="details_player"),
     path('details/team/', views.details_team, name="details_team"),
-    
+
     # Dashboards
     path('manager/dashboard/', views.manager_dashboard, name='manager_dashboard'),
     path('player/dashboard/', views.player_dashboard, name='player_dashboard'),
@@ -19,4 +19,10 @@ urlpatterns = [
     # Other pages
     path('players/', views.view_available_players, name='view_available_players'),
     path('player/<int:pk>/', views.player_profile, name="player_profile"),
+
+    # Invitations
+    path('player/<int:pk>/invite',views.send_invite,name="send_invite"),
+    path('accept_invitation/<int:pk>/',views.accept_invitation,name="accept_invitation"),
+    path('reject_invitation/<int:pk>/',views.reject_invitation,name="reject_invitation"),
+
 ]
