@@ -77,13 +77,15 @@
     {% endif %}
 
     <!-- Invite Button -->
-    {% if user.is_authenticated and user.customUser.role == "MANAGER" and player.isAvailable %}
+    {% if not player.has_invited %}
+      {% if user.is_authenticated and user.customUser.role == "MANAGER" and player.isAvailable and not player.has_invited %}
       <form method="post" action="{% url "send_invite" player.pk %}" class="flex justify-center">
         {% csrf_token %}
         <button type="submit" class="bg-sky-500 hover:bg-sky-600 text-white font-semibold px-8 py-3 rounded-lg shadow-lg transition">
           Send Invitation to Join Team 
         </button>
       </form>
+      {% endif %}
     {% endif %}
   </div>
 </div>

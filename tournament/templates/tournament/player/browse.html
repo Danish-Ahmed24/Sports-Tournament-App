@@ -38,12 +38,19 @@
             View Profile
           </a>
           {% if user.customUser.role == "MANAGER" %}
-            <form method="post" action="{% url "send_invite" player.pk %}" class="flex-1">
-              {% csrf_token %}
-              <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-medium py-2 rounded-lg transition">
-                Invite
-              </button>
-            </form>
+            {% if player.has_invited %}
+              <span class="w-full bg-sky-500 text-white font-medium py-2 rounded-lg transition">
+                  Pending
+              </span>
+            {% else %}
+              <form method="post" action="{% url "send_invite" player.pk %}" class="flex-1">
+                {% csrf_token %}
+                <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-medium py-2 rounded-lg transition">
+                  Invite
+                </button>
+              </form>
+            {% endif %}
+            
           {% endif %}
         </div>
       </div>

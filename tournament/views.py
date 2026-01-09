@@ -122,9 +122,19 @@ def details_player(request):
 
     return render(request,"tournament/auth/signup.html",{"form":form,"btn":"Done"})
 
+def helper_addHasInvitedAttr(request, available_players):
+    if request.user.customUser.role == "MANAGER":
+        manager = request.user.customUser.manager
+        for player in available_players:
+            player.has_invited = player.received_invitations.filter(
+                manager=manager,
+                status='P'  # Only check for PENDING invitations
+            ).exists()
+
 @login_required
 def view_available_players(request):
     available_players = Player.objects.filter(isAvailable = True)
+    helper_addHasInvitedAttr(request,available_players)
 
     context={
         "available_players":available_players
@@ -137,6 +147,14 @@ def player_profile(request,pk):
         player = Player.objects.get(pk=pk)
         if not player.isAvailable:
             return redirect('index')
+        if request.user.customUser.role == "MANAGER":
+            if player.isAvailable and player.received_invitations.filter(
+                manager = request.user.customUser.manager,
+                status = "P" 
+            ):
+                player.has_invited = True
+            else:
+                player.has_invited = False
         context={
             "player":player
         }
