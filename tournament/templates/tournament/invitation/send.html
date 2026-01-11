@@ -2,140 +2,140 @@
 {% block title %}Send Invitation{% endblock %}
 
 {% block body %}
-<style>
-  input[type="number"],
-  textarea {
-    width: 100%;
-    padding: 0.5rem 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-  }
-  input:focus, textarea:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px #0ea5e9;
-  }
-</style>
+  <style>
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 0.5rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px #0ea5e9;
+    }
+  </style>
 
-<div class="max-w-2xl mx-auto">
+  <div class="max-w-2xl mx-auto">
   <!-- Back Button -->
-  <a href="{% url 'player_profile' player.pk %}" class="inline-flex items-center text-sky-500 hover:text-sky-600 mb-6">
-    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-    </svg>
-    Back to Profile
-  </a>
+    <a href="{% url 'player_profile' player.pk %}" class="inline-flex items-center text-sky-500 hover:text-sky-600 mb-6">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      Back to Profile
+    </a>
 
   <!-- Player Info Card -->
-  <div class="bg-gradient-to-r from-sky-500 to-sky-600 rounded-lg shadow-lg p-6 mb-6">
-    <div class="flex items-center text-white">
-      <div class="w-16 h-16 rounded-full bg-white text-sky-600 font-bold text-2xl flex items-center justify-center shadow-lg">
-        {{ player.customUser.name.0|upper }}
-      </div>
-      <div class="ml-4">
-        <h2 class="text-2xl font-bold">{{ player.customUser.name }}</h2>
-        <p class="text-sky-100">{{ player.get_position_display }} • Age {{ player.age }} • {{ player.customUser.experience }}y exp</p>
+    <div class="bg-gradient-to-r from-sky-500 to-sky-600 rounded-lg shadow-lg p-6 mb-6">
+      <div class="flex items-center text-white">
+        <div class="w-16 h-16 rounded-full bg-white text-sky-600 font-bold text-2xl flex items-center justify-center shadow-lg">
+          {{ player.customUser.name.0|upper }}
+        </div>
+        <div class="ml-4">
+          <h2 class="text-2xl font-bold">{{ player.customUser.name }}</h2>
+          <p class="text-sky-100">{{ player.get_position_display }} • Age {{ player.age }} • {{ player.customUser.experience }}y exp</p>
+        </div>
       </div>
     </div>
-  </div>
 
   <!-- Invitation Form -->
-  <div class="bg-white rounded-lg shadow-md p-8">
-    <h3 class="text-2xl font-bold text-gray-800 mb-2">Contract Offer</h3>
-    <p class="text-gray-600 mb-6">Fill in the details of your offer to {{ player.customUser.name }}</p>
-    
-    <form method="post" class="space-y-6">
-      {% csrf_token %}
-      
+    <div class="bg-white rounded-lg shadow-md p-8">
+      <h3 class="text-2xl font-bold text-gray-800 mb-2">Contract Offer</h3>
+      <p class="text-gray-600 mb-6">Fill in the details of your offer to {{ player.customUser.name }}</p>
+
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+
       <!-- Team Name (Display Only) -->
-      <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-        <p class="text-gray-600 text-sm mb-1">Offering Team</p>
-        <p class="text-2xl font-bold text-gray-800">{{ user.customUser.manager.team.teamName }}</p>
-      </div>
+        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+          <p class="text-gray-600 text-sm mb-1">Offering Team</p>
+          <p class="text-2xl font-bold text-gray-800">{{ user.customUser.manager.team.teamName }}</p>
+        </div>
 
       <!-- Salary -->
-      <div>
-        <label class="block text-gray-700 font-semibold mb-2">
-          💰 Salary Offer (Monthly)
-        </label>
-        {% for field in form %}
-          {% if field.name == 'salary' %}
-            <div class="relative">
-              <span class="absolute left-3 top-3 text-gray-500 font-semibold">$</span>
-              <input 
-                type="number" 
-                name="{{ field.name }}"
-                step="0.01"
-                class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-lg font-semibold"
-                placeholder="5000.00"
-                required
-              >
-            </div>
-            {% if field.errors %}
-              <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">
+            💰 Salary Offer (Monthly)
+          </label>
+          {% for field in form %}
+            {% if field.name == 'salary' %}
+              <div class="relative">
+                <span class="absolute left-3 top-3 text-gray-500 font-semibold">$</span>
+                <input
+                  type="number"
+                  name="{{ field.name }}"
+                  step="0.01"
+                  class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-lg font-semibold"
+                  placeholder="5000.00"
+                  required
+                >
+              </div>
+              {% if field.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+              {% endif %}
             {% endif %}
-          {% endif %}
-        {% endfor %}
-        <p class="text-gray-500 text-sm mt-1">Enter the monthly salary you're offering</p>
-      </div>
+          {% endfor %}
+          <p class="text-gray-500 text-sm mt-1">Enter the monthly salary you're offering</p>
+        </div>
 
       <!-- Contract Length -->
-      <div>
-        <label class="block text-gray-700 font-semibold mb-2">
-          📅 Contract Length (Months)
-        </label>
-        {% for field in form %}
-          {% if field.name == 'contract_length' %}
-            <input 
-              type="number" 
-              name="{{ field.name }}"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-lg font-semibold"
-              placeholder="12"
-              min="1"
-              required
-            >
-            {% if field.errors %}
-              <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">
+            📅 Contract Length (Months)
+          </label>
+          {% for field in form %}
+            {% if field.name == 'contract_length' %}
+              <input
+                type="number"
+                name="{{ field.name }}"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-lg font-semibold"
+                placeholder="12"
+                min="1"
+                required
+              >
+              {% if field.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+              {% endif %}
             {% endif %}
-          {% endif %}
-        {% endfor %}
-        <p class="text-gray-500 text-sm mt-1">How long is this contract? (e.g., 6, 12, 24 months)</p>
-      </div>
+          {% endfor %}
+          <p class="text-gray-500 text-sm mt-1">How long is this contract? (e.g., 6, 12, 24 months)</p>
+        </div>
 
       <!-- Message -->
-      <div>
-        <label class="block text-gray-700 font-semibold mb-2">
-          💬 Personal Message (Optional)
-        </label>
-        {% for field in form %}
-          {% if field.name == 'message' %}
-            <textarea 
-              name="{{ field.name }}"
-              rows="4"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-              placeholder="Tell {{ player.customUser.name }} why they should join your team..."
-            ></textarea>
-            {% if field.errors %}
-              <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+        <div>
+          <label class="block text-gray-700 font-semibold mb-2">
+            💬 Personal Message (Optional)
+          </label>
+          {% for field in form %}
+            {% if field.name == 'message' %}
+              <textarea
+                name="{{ field.name }}"
+                rows="4"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                placeholder="Tell {{ player.customUser.name }} why they should join your team..."
+              ></textarea>
+              {% if field.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+              {% endif %}
             {% endif %}
-          {% endif %}
-        {% endfor %}
-      </div>
+          {% endfor %}
+        </div>
 
       <!-- Preview -->
-      <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
-        <p class="text-sm text-blue-700">
-          <strong>📋 Summary:</strong> You're offering {{ player.customUser.name }} a contract to join {{ user.customUser.manager.team.teamName }}
-        </p>
-      </div>
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+          <p class="text-sm text-blue-700">
+            <strong>📋 Summary:</strong> You're offering {{ player.customUser.name }} a contract to join {{ user.customUser.manager.team.teamName }}
+          </p>
+        </div>
 
       <!-- Submit Button -->
-      <button 
-        type="submit" 
-        class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold text-lg py-4 rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-1"
-      >
-        📤 Send Invitation
-      </button>
-    </form>
+        <button
+          type="submit"
+          class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold text-lg py-4 rounded-lg shadow-lg hover:shadow-xl transition transform hover:-translate-y-1"
+        >
+          📤 Send Invitation
+        </button>
+      </form>
+    </div>
   </div>
-</div>
 {% endblock %}

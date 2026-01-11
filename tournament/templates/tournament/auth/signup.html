@@ -2,44 +2,44 @@
 {% block title %}Sign Up{% endblock %}
 
 {% block body %}
-<style>
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  select {
-    width: 100%;
-    padding: 0.5rem 1rem;
-    border: 1px solid #d1d5db;
-    border-radius: 0.5rem;
-  }
-  input:focus, select:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px #0ea5e9;
-  }
-</style>
+  <style>
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 0.5rem 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+    }
+    input:focus, select:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px #0ea5e9;
+    }
+  </style>
 
-<div class="max-w-md mx-auto">
-  <div class="bg-white rounded-lg shadow-md p-8">
-    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Create Account</h2>
+  <div class="max-w-md mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Create Account</h2>
 
-    <form method="post" class="space-y-4">
-      {% csrf_token %}
-      {{ form.as_p }}
-      
-      <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 rounded-lg mt-6 transition">
-        {{ btn }}
-      </button>
-    </form>
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {{ form.as_p }}
 
-    {% if btn == "Next" %}
-      <div class="text-center mt-4">
-        <p class="text-gray-600">
-          Already have an account? 
-          <a href="{% url 'login' %}" class="text-sky-500 hover:text-sky-600 font-semibold">Login</a>
-        </p>
-      </div>
-    {% endif %}
+        <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 rounded-lg mt-6 transition">
+          {{ btn }}
+        </button>
+      </form>
+
+      {% if btn == "Next" %}
+        <div class="text-center mt-4">
+          <p class="text-gray-600">
+            Already have an account?
+            <a href="{% url 'login' %}" class="text-sky-500 hover:text-sky-600 font-semibold">Login</a>
+          </p>
+        </div>
+      {% endif %}
+    </div>
   </div>
-</div>
 {% endblock %}

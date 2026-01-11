@@ -4,12 +4,13 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.db import Error
 from django.forms import ValidationError
-from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
 from tournament.models import CustomUser, Invitation, Manager, Player, Referee, Team
 from .forms import BasicSignUpForm, InvitationForm, TeamSignUpForm, PlayerSignUpForm
 from django.utils import timezone
+
+
 def index(request):
     """Homepage - shows landing page or redirects to dashboard"""
     if request.user.is_authenticated:
@@ -141,7 +142,7 @@ def view_available_players(request):
     }
     return render(request,'tournament/player/browse.html',context)
 
-
+@login_required
 def player_profile(request,pk):
     try:
         player = Player.objects.get(pk=pk)
@@ -151,7 +152,7 @@ def player_profile(request,pk):
             if player.isAvailable and player.received_invitations.filter(
                 manager = request.user.customUser.manager,
                 status = "P" 
-            ):
+            ).exists():
                 player.has_invited = True
             else:
                 player.has_invited = False
@@ -160,7 +161,7 @@ def player_profile(request,pk):
         }
         return render(request,"tournament/player/profile.html",context)
     except ObjectDoesNotExist:
-        return HttpResponse("DOes not exits go back")
+        return not_found(request,"Player Not Found",f"No player found with id ${pk}")
     
 @login_required
 def send_invite(request, pk):
@@ -171,11 +172,11 @@ def send_invite(request, pk):
     try:
         player = Player.objects.get(pk=pk)
     except Player.DoesNotExist:
-        return HttpResponse("Player not found")
+        return not_found(request,"Player Not Found",f"No player found with id ${pk}")
     
     # Check if player is available
     if not player.isAvailable:
-        return HttpResponse("Player is already signed to a team")
+        return not_found(request,"Player already in a team",f"Come back Later")
     
     manager = request.user.customUser.manager
     team = manager.team
@@ -197,7 +198,7 @@ def send_invite(request, pk):
             
             except ValidationError as e:
                 # Duplicate invitation error
-                return HttpResponse(f"Error: {e}")
+                return not_found(request,"ERROR",e)
     else:
         form = InvitationForm()
     
@@ -218,17 +219,17 @@ def reject_invitation(request,pk):
 
         # Security check
         if invitation.player != request.user.customUser.player:
-            return HttpResponse("This invitation is not for you!")
+            return not_found(request,"Invitation Not for You",f"Try again later!")
         # Make sure it's pending
         if invitation.status != 'P':
-            return HttpResponse("This invitation has already been responded to")
+            return not_found(request,"ERROR",f"Invitation has been responded")
         
         invitation.status='R'
         invitation.responded_at=timezone.now()
         invitation.save()
         return redirect('player_dashboard')
     except Invitation.DoesNotExist:
-        return HttpResponse("Invitation does not exist")
+        return not_found(request,"Not Found",f"Invitation not found")
     
 @login_required
 def accept_invitation(request, pk):
@@ -240,11 +241,11 @@ def accept_invitation(request, pk):
         
         # Make sure this invitation belongs to the logged-in player
         if invitation.player != request.user.customUser.player:
-            return HttpResponse("This invitation is not for you!")
+            return not_found(request,"Invitation not for you",f"Try again later")
         
         # Make sure invitation is still pending
         if invitation.status != 'P':
-            return HttpResponse("This invitation has already been responded to")
+            return not_found(request,"Already Responded",f"Inviatation is already been reponseded")
         
         player = invitation.player
         
@@ -267,5 +268,32 @@ def accept_invitation(request, pk):
         return redirect('player_dashboard')
         
     except Invitation.DoesNotExist:
-        return HttpResponse("Invitation does not exist")
+        return not_found(request,"Not Found",f"Invitation Doesnt Exits")
 
+def not_found(request,title,desc):
+    context = {
+        "title":title,
+        "description": desc
+    }
+    return render(request,"tournament/auth/notFound.html",context)
+
+@login_required
+def remove_player(request,pk):
+    
+    if request.user.customUser.role != "MANAGER":
+        return redirect('index')
+    manager = request.user.customUser.manager
+    
+    try:
+        player = Player.objects.get(pk=pk)
+    except ObjectDoesNotExist:
+        return not_found(request,"Player Not Found",f"No player found with id ${pk}")
+    
+    if manager != player.team.manager:
+        return not_found(request,"Permission Denied",f"It is not your player")
+
+    player.isAvailable = True
+    player.team = None
+    player.save()
+    
+    return redirect('manager_dashboard')    

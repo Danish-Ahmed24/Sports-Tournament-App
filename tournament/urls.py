@@ -25,4 +25,7 @@ urlpatterns = [
     path('accept_invitation/<int:pk>/',views.accept_invitation,name="accept_invitation"),
     path('reject_invitation/<int:pk>/',views.reject_invitation,name="reject_invitation"),
 
+    # Remove
+    path('player/<int:pk>/close',views.remove_player,name="remove_player"),
+
 ]

@@ -2,59 +2,59 @@
 {% block title %}Login{% endblock %}
 
 {% block body %}
-<div class="max-w-md mx-auto">
-  <div class="bg-white rounded-lg shadow-md p-8">
-    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Login</h2>
+  <div class="max-w-md mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8">
+      <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Login</h2>
 
-    <form method="POST">
-      {% csrf_token %}
+      <form method="POST">
+        {% csrf_token %}
 
-      {% if form.non_field_errors %}
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {% for error in form.non_field_errors %}
-            <p>{{ error }}</p>
+        {% if form.non_field_errors %}
+          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {% for error in form.non_field_errors %}
+              <p>{{ error }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="space-y-4">
+          {% for field in form %}
+            <div>
+              <label class="block text-gray-700 font-semibold mb-2">{{ field.label }}</label>
+              <input
+                type="{{ field.field.widget.input_type }}"
+                name="{{ field.name }}"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+                {% if field.value %}value="{{ field.value }}"{% endif %}
+                required
+              >
+              {% if field.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+              {% endif %}
+            </div>
           {% endfor %}
         </div>
-      {% endif %}
 
-      <div class="space-y-4">
-        {% for field in form %}
-          <div>
-            <label class="block text-gray-700 font-semibold mb-2">{{ field.label }}</label>
-            <input 
-              type="{{ field.field.widget.input_type }}"
-              name="{{ field.name }}"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
-              {% if field.value %}value="{{ field.value }}"{% endif %}
-              required
-            >
-            {% if field.errors %}
-              <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
-            {% endif %}
-          </div>
-        {% endfor %}
+        <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 rounded-lg mt-6 transition">
+          Login
+        </button>
+      </form>
+
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-300"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-white text-gray-500">or</span>
+        </div>
       </div>
 
-      <button type="submit" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 rounded-lg mt-6 transition">
-        Login
-      </button>
-    </form>
-
-    <div class="relative my-6">
-      <div class="absolute inset-0 flex items-center">
-        <div class="w-full border-t border-gray-300"></div>
+      <div class="text-center">
+        <p class="text-gray-600">
+          Don't have an account?
+          <a href="{% url 'signup' %}" class="text-sky-500 hover:text-sky-600 font-semibold">Sign up</a>
+        </p>
       </div>
-      <div class="relative flex justify-center text-sm">
-        <span class="px-2 bg-white text-gray-500">or</span>
-      </div>
-    </div>
-
-    <div class="text-center">
-      <p class="text-gray-600">
-        Don't have an account? 
-        <a href="{% url 'signup' %}" class="text-sky-500 hover:text-sky-600 font-semibold">Sign up</a>
-      </p>
     </div>
   </div>
-</div>
 {% endblock %}

@@ -3,139 +3,142 @@
 
 {% block body %}
 <!-- Welcome Header -->
-<div class="mb-8">
-  <h1 class="text-3xl font-bold text-gray-800">Player Dashboard</h1>
-  <p class="text-gray-600 mt-2">Welcome back, {{ user.customUser.name }}!</p>
-</div>
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800">Player Dashboard</h1>
+    <p class="text-gray-600 mt-2">Welcome back, {{ user.customUser.name }}!</p>
+  </div>
 
 <!-- Player Stats -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-  <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-sky-500">
-    <p class="text-gray-500 text-sm font-semibold uppercase">Position</p>
-    <p class="text-2xl font-bold text-gray-800 mt-2">{{ user.customUser.player.get_position_display }}</p>
-  </div>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-sky-500">
+      <p class="text-gray-500 text-sm font-semibold uppercase">Position</p>
+      <p class="text-2xl font-bold text-gray-800 mt-2">{{ user.customUser.player.get_position_display }}</p>
+    </div>
 
-  <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
-    <p class="text-gray-500 text-sm font-semibold uppercase">Age</p>
-    <p class="text-2xl font-bold text-gray-800 mt-2">{{ user.customUser.player.age }} years</p>
-  </div>
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
+      <p class="text-gray-500 text-sm font-semibold uppercase">Age</p>
+      <p class="text-2xl font-bold text-gray-800 mt-2">{{ user.customUser.player.age }} years</p>
+    </div>
 
-  <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
-    <p class="text-gray-500 text-sm font-semibold uppercase">Experience</p>
-    <p class="text-2xl font-bold text-gray-800 mt-2">{{ user.customUser.experience }} years</p>
-  </div>
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
+      <p class="text-gray-500 text-sm font-semibold uppercase">Experience</p>
+      <p class="text-2xl font-bold text-gray-800 mt-2">{{ user.customUser.experience }} years</p>
+    </div>
 
-  <div class="bg-white rounded-lg shadow-md p-6 border-l-4 {% if user.customUser.player.isAvailable %}border-green-500{% else %}border-red-500{% endif %}">
-    <p class="text-gray-500 text-sm font-semibold uppercase">Status</p>
-    <p class="text-xl font-bold mt-2 {% if user.customUser.player.isAvailable %}text-green-600{% else %}text-red-600{% endif %}">
-      {% if user.customUser.player.isAvailable %}
-        Available
-      {% else %}
-        Signed
-      {% endif %}
-    </p>
+    <div class="bg-white rounded-lg shadow-md p-6 border-l-4 {% if user.customUser.player.isAvailable %}border-green-500{% else %}border-red-500{% endif %}">
+      <p class="text-gray-500 text-sm font-semibold uppercase">Status</p>
+      <p class="text-xl font-bold mt-2 {% if user.customUser.player.isAvailable %}text-green-600{% else %}text-red-600{% endif %}">
+        {% if user.customUser.player.isAvailable %}
+          Available
+        {% else %}
+          Signed
+        {% endif %}
+      </p>
+    </div>
   </div>
-</div>
 
 <!-- Current Team (if signed) -->
-{% if user.customUser.player.team %}
-  <div class="bg-gradient-to-br from-sky-500 to-sky-600 rounded-lg shadow-lg p-8 text-white mb-8">
-    <h2 class="text-2xl font-bold mb-4">Your Team</h2>
-    <div class="flex items-center justify-between">
-      <div>
-        <p class="text-3xl font-bold">{{ user.customUser.player.team.teamName }}</p>
-        <p class="text-sky-100 mt-2">Manager: {{ user.customUser.player.team.manager.customUser.name }}</p>
-      </div>
-      <div class="w-20 h-20 rounded-full bg-white text-sky-600 font-bold text-3xl flex items-center justify-center">
-        {{ user.customUser.player.team.teamName.0|upper }}
-      </div>
-    </div>
-  </div>
-{% endif %}
-
-<!-- Pending Invitations -->
-<div class="bg-white rounded-lg shadow-md p-6">
-  <div class="flex items-center justify-between mb-6">
-    <h2 class="text-2xl font-bold text-gray-800">Pending Invitations</h2>
-    {% if invitations %}
-      <span class="bg-sky-500 text-white text-sm font-semibold px-3 py-1 rounded-full">
-        {{ invitations|length }} New
-      </span>
-    {% endif %}
-  </div>
-  
-  {% if invitations %}
-    <div class="space-y-4">
-      {% for invitation in invitations %}
-        <div class="bg-gray-50 rounded-lg p-6 border-2 border-gray-200 hover:border-sky-500 transition">
-          <!-- Team Header -->
-          <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center">
-              <div class="w-16 h-16 rounded-full bg-sky-500 text-white font-bold text-2xl flex items-center justify-center shadow-lg">
-                {{ invitation.team.teamName.0|upper }}
-              </div>
-              <div class="ml-4">
-                <h3 class="text-2xl font-bold text-gray-800">{{ invitation.team.teamName }}</h3>
-                <p class="text-gray-600">Manager: {{ invitation.manager.customUser.name }}</p>
-              </div>
-            </div>
-            <div class="text-right">
-              <p class="text-sm text-gray-500">Received</p>
-              <p class="text-sm font-semibold text-gray-700">{{ invitation.created_at|date:"M d, Y" }}</p>
-            </div>
-          </div>
-
-          <!-- Contract Details -->
-          <div class="bg-white rounded-lg p-4 mb-4 grid grid-cols-2 gap-4">
-            <div class="text-center">
-              <p class="text-gray-500 text-sm mb-1">Salary Offer</p>
-              <p class="text-3xl font-bold text-green-600">${{ invitation.salary }}</p>
-              <p class="text-xs text-gray-500">per month</p>
-            </div>
-            <div class="text-center">
-              <p class="text-gray-500 text-sm mb-1">Contract Length</p>
-              <p class="text-3xl font-bold text-sky-600">{{ invitation.contract_length }}</p>
-              <p class="text-xs text-gray-500">months</p>
-            </div>
-          </div>
-
-          <!-- Message (if exists) -->
-          {% if invitation.message %}
-            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
-              <p class="text-sm text-gray-600 font-semibold mb-1">Message from Manager:</p>
-              <p class="text-gray-700">{{ invitation.message }}</p>
-            </div>
-          {% endif %}
-
-          <!-- Action Buttons -->
-          <div class="flex gap-3">
-            <form method="POST" action="{% url 'accept_invitation' invitation.pk %}" class="flex-1">
-              {% csrf_token %}
-              <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg shadow-lg transition transform hover:scale-105">
-                ✓ Accept Offer
-              </button>
-            </form>
-            <form method="POST" action="{% url 'reject_invitation' invitation.pk %}" class="flex-1">
-              {% csrf_token %}
-              <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-lg shadow-lg transition transform hover:scale-105">
-                ✗ Decline
-              </button>
-            </form>
-          </div>
+  {% if user.customUser.player.team %}
+    <div class="bg-gradient-to-br from-sky-500 to-sky-600 rounded-lg shadow-lg p-8 text-white mb-8">
+      <h2 class="text-2xl font-bold mb-4">Your Team</h2>
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-3xl font-bold">{{ user.customUser.player.team.teamName }}</p>
+          <p class="text-sky-100 mt-2">Manager: {{ user.customUser.player.team.manager.customUser.name }}</p>
         </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <div class="text-center py-16 text-gray-500">
-      <div class="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
-        </svg>
+        <div class="w-20 h-20 rounded-full bg-white text-sky-600 font-bold text-3xl flex items-center justify-center">
+          {{ user.customUser.player.team.teamName.0|upper }}
+        </div>
       </div>
-      <h3 class="text-xl font-semibold text-gray-700 mb-2">No Pending Invitations</h3>
-      <p class="text-gray-500">You don't have any team offers at the moment.</p>
-      <p class="text-sm text-gray-400 mt-2">Managers will send you invitations when they're interested!</p>
     </div>
   {% endif %}
-</div>
+
+  {% if user.customUser.player.isAvailable %}
+<!-- Pending Invitations -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Pending Invitations</h2>
+        {% if invitations %}
+          <span class="bg-sky-500 text-white text-sm font-semibold px-3 py-1 rounded-full">
+            {{ invitations|length }} New
+          </span>
+        {% endif %}
+      </div>
+
+      {% if invitations %}
+        <div class="space-y-4">
+          {% for invitation in invitations %}
+            <div class="bg-gray-50 rounded-lg p-6 border-2 border-gray-200 hover:border-sky-500 transition">
+          <!-- Team Header -->
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                  <div class="w-16 h-16 rounded-full bg-sky-500 text-white font-bold text-2xl flex items-center justify-center shadow-lg">
+                    {{ invitation.team.teamName.0|upper }}
+                  </div>
+                  <div class="ml-4">
+                    <h3 class="text-2xl font-bold text-gray-800">{{ invitation.team.teamName }}</h3>
+                    <p class="text-gray-600">Manager: {{ invitation.manager.customUser.name }}</p>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm text-gray-500">Received</p>
+                  <p class="text-sm font-semibold text-gray-700">{{ invitation.created_at|date:"M d, Y" }}</p>
+                </div>
+              </div>
+
+          <!-- Contract Details -->
+              <div class="bg-white rounded-lg p-4 mb-4 grid grid-cols-2 gap-4">
+                <div class="text-center">
+                  <p class="text-gray-500 text-sm mb-1">Salary Offer</p>
+                  <p class="text-3xl font-bold text-green-600">${{ invitation.salary }}</p>
+                  <p class="text-xs text-gray-500">per month</p>
+                </div>
+                <div class="text-center">
+                  <p class="text-gray-500 text-sm mb-1">Contract Length</p>
+                  <p class="text-3xl font-bold text-sky-600">{{ invitation.contract_length }}</p>
+                  <p class="text-xs text-gray-500">months</p>
+                </div>
+              </div>
+
+          <!-- Message (if exists) -->
+              {% if invitation.message %}
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4">
+                  <p class="text-sm text-gray-600 font-semibold mb-1">Message from Manager:</p>
+                  <p class="text-gray-700">{{ invitation.message }}</p>
+                </div>
+              {% endif %}
+
+          <!-- Action Buttons -->
+              <div class="flex gap-3">
+                <form method="POST" action="{% url 'accept_invitation' invitation.pk %}" class="flex-1">
+                  {% csrf_token %}
+                  <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg shadow-lg transition transform hover:scale-105">
+                    ✓ Accept Offer
+                  </button>
+                </form>
+                <form method="POST" action="{% url 'reject_invitation' invitation.pk %}" class="flex-1">
+                  {% csrf_token %}
+                  <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 rounded-lg shadow-lg transition transform hover:scale-105">
+                    ✗ Decline
+                  </button>
+                </form>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-16 text-gray-500">
+          <div class="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+            <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-700 mb-2">No Pending Invitations</h3>
+          <p class="text-gray-500">You don't have any team offers at the moment.</p>
+          <p class="text-sm text-gray-400 mt-2">Managers will send you invitations when they're interested!</p>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
 {% endblock %}
