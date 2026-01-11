@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from django.db import Error
+from django.views.decorators.http import require_http_methods
 from django.forms import ValidationError
 from django.shortcuts import redirect, render
 from django.contrib.auth.models import User
@@ -52,6 +53,7 @@ def referee_dashboard(request):
         return redirect('index')
     return render(request, "tournament/referee/dashboard.html")
 
+@require_http_methods(['POST','GET'])
 def signup_view(request):
     if request.user.is_authenticated:
         return redirect('index')
@@ -123,19 +125,20 @@ def details_player(request):
 
     return render(request,"tournament/auth/signup.html",{"form":form,"btn":"Done"})
 
-def helper_addHasInvitedAttr(request, available_players):
-    if request.user.customUser.role == "MANAGER":
-        manager = request.user.customUser.manager
-        for player in available_players:
-            player.has_invited = player.received_invitations.filter(
-                manager=manager,
-                status='P'  # Only check for PENDING invitations
-            ).exists()
+    
 
 @login_required
+@require_http_methods(['GET'])
 def view_available_players(request):
     available_players = Player.objects.filter(isAvailable = True)
-    helper_addHasInvitedAttr(request,available_players)
+    
+    if request.user.customUser.role == "MANAGER":
+            manager = request.user.customUser.manager
+            for player in available_players:
+                player.has_invited = player.received_invitations.filter(
+                    manager=manager,
+                    status='P'  # Only check for PENDING invitations
+                ).exists()
 
     context={
         "available_players":available_players

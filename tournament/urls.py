@@ -17,7 +17,7 @@ urlpatterns = [
     path('referee/dashboard/', views.referee_dashboard, name='referee_dashboard'),
     
     # Other pages
-    path('players/', views.view_available_players, name='view_available_players'),
+    path('browse/players/', views.view_available_players, name='view-available-players'),
     path('player/<int:pk>/', views.player_profile, name="player_profile"),
 
     # Invitations

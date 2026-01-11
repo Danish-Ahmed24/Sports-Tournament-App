@@ -1,22 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}Tournament App{% endblock title %}</title>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Tournament App{% endblock title %}</title>
 
     <!-- daisyUI cdn -->
-        <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
-        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <!-- daisyUI Themes cdn-->
-        <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
 
     <!-- htmx cdn -->
-        <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js" integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz" crossorigin="anonymous"></script>
-    </head>
-    <body>
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js" integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz" crossorigin="anonymous"></script>
+  </head>
+  <body>
 
-        <button class="btn">Button</button>
+    <div class="navbar bg-primary text-primary-content">
+      <div class="flex-1">
+        <a class="text-xl">Tournament App</a>
+      </div>
+      <div class="flex-none">
+        <ul class="menu menu-horizontal px-1">
 
-    </body>
+          <li><a href="{% url "view-available-players" %}">Browse Players</a></li>
+
+          {% if user.is_authenticated %}
+            <li>
+              <form method="POST" action="{% url "logout" %}">
+                {% csrf_token %}
+                <button type="submit">Logout</button>
+              </form>
+            </li>
+          {% else %}
+            <li>
+              <a href="{% url "login" %}" >Login</a>
+            </li>
+            <li>
+              <a href="{% url "signup" %}">Sign Up</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+    {% block body %}{% endblock body %}
+
+
+  </body>
 </html>
