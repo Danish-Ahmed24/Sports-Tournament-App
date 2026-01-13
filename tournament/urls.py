@@ -7,7 +7,8 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('login/', LoginView.as_view(template_name="tournament/auth/login.html"), name='login'),
     path('logout/', LogoutView.as_view(next_page='index'), name='logout'),
-    path('signup/', views.signup_view, name='signup'),
+    # isko transactions dalo
+    path('signup/', views.signup, name='signup'),
     path('details/player/', views.details_player, name="details_player"),
     path('details/team/', views.details_team, name="details_team"),
 
