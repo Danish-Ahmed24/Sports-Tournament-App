@@ -1,0 +1,44 @@
+{% partialdef player-invite %}
+
+
+
+  <ul class="list bg-base-100 rounded-box shadow-md">
+    {% for invite in invitations %}
+
+      <li class="list-row" id="invite_{{invite.pk}}">
+        <div><img class="size-10 rounded-box" src="https://img.daisyui.com/images/profile/demo/1@94.webp"/></div> 
+        <div>
+          <div>{{invite.team.teamName}}</div>
+          <div class="text-xs uppercase font-semibold opacity-60">FROM {{invite.manager.customUser.name}}</div>
+          <div class="text-xs lowercase  opacity-70">{{invite.created_at|date:"Y-m-d h:i A"}}</div>
+        </div>
+        <p class="list-col-wrap text-xs">
+          {{invite.message|default:"no message"}}
+        </p>
+        <a class="btn btn-square btn-ghost"
+            hx-post="{% url "accept-invitation" invite.pk %}"
+            hx-target="#invitations"
+            hx-swap="delete"
+        >
+            ✅   
+    </a>
+        <button class="btn btn-square btn-ghost"
+            hx-post="{% url "reject-invitation" invite.pk %}"
+            hx-target="#invite_{{invite.pk}}"
+            hx-swap="delete"
+        >
+          ❌
+        </button>
+      </li>
+    {% empty %}
+      EMPTY
+    {% endfor %}
+
+
+
+  </ul>
+
+
+
+
+{% endpartialdef player-invite %}

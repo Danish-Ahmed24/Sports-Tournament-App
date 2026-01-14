@@ -19,7 +19,7 @@ def index(request):
     if request.user.is_authenticated:
         role = request.user.customUser.role
         if role == "PLAYER":
-            return redirect('player_dashboard')
+            return redirect('player-dashboard')
         elif role == "MANAGER":
             return redirect('manager_dashboard')
         else:
@@ -28,37 +28,9 @@ def index(request):
     # Show landing page for guests
     return render(request, "tournament/index.html")
 
-@login_required
-def manager_dashboard(request):
-    """Manager's dashboard"""
-    if request.user.customUser.role != "MANAGER":
-        return redirect('index')
-    
-    invitations = request.user.customUser.manager.sent_invitations.all()
-    context={"invitations":invitations}
-    return render(request, "tournament/manager/dashboard.html",context)
 
-@login_required
-def player_dashboard(request):
-    """Player's dashboard"""
-    if request.user.customUser.role != "PLAYER":
-        return redirect('index') # circle ban raha 
-    
-    invitations = request.user.customUser.player.received_invitations.filter(status='P')
-    context={"invitations":invitations}
-    return render(request, "tournament/player/dashboard.html",context)
 
-@login_required
-def referee_dashboard(request):
-    """Referee's dashboard"""
-    if request.user.customUser.role != "REFEREE":
-        return redirect('index')
-    return render(request, "tournament/referee/dashboard.html")
-
-# transcation dalo bc
-# customUser to ban gaya kia pata koi masla agaya beech mein tab kai karega be
-# details to lagi hi nhi like MAANGER < PALYER < REFREE kon karega 
-# TEMPLATES ARE LOADING....
+# SIGN UP 
 @require_http_methods(['POST','GET'])
 def signup(request):
     if request.user.is_authenticated:
@@ -81,9 +53,9 @@ def signup(request):
             request.session['sign_up_details'] = sign_up_details
 
             if(role == "PLAYER"):
-                return redirect('details_player')
+                return redirect('details-player')
             elif(role == "MANAGER"):
-                return redirect('details_team')
+                return redirect('details-team')
             else:
                 # Refree Signed Up
                 with transaction.atomic():
@@ -112,8 +84,6 @@ def signup(request):
         "btn":"Next",
         "action":"signup"
         })
-
-
 def details_team(request):
     if 'sign_up_details' not in request.session:
         return redirect('signup')
@@ -149,9 +119,8 @@ def details_team(request):
     return render(request,"tournament/auth/signup.html",{
         "form":form,
         "btn":"Done",
-        "action":"details_team"
+        "action":"details-team"
         })
-
 def details_player(request):
     if 'sign_up_details' not in request.session:
         return redirect('signup')
@@ -188,10 +157,65 @@ def details_player(request):
     return render(request,"tournament/auth/signup.html",{
         "form":form,
         "btn":"Done",
-        "action":"details_player"
+        "action":"details-player"
         })
 
+
+
+
+@login_required
+@require_http_methods(['GET'])
+def manager_dashboard(request):
+    """Manager's dashboard"""
+    if request.user.customUser.role != "MANAGER":
+        return redirect('index')
+    customUser = request.user.customUser
+    manager = customUser.manager
+    team = manager.team
+    invitations = manager.sent_invitations.all()
+    context={
+        "invitations":invitations,
+        "team": team,
+        "manager":manager,
+        "customUser":customUser
+        }
+    return render(request, "tournament/manager/dashboard.html",context)
+
+@login_required
+@require_http_methods(['GET'])
+def player_dashboard(request):
+    """Player's dashboard"""
+    if request.user.customUser.role != "PLAYER":
+        return redirect('index') 
     
+    customUser = request.user.customUser
+    player = customUser.player
+    team = player.team
+    context={
+            "customUser": customUser,
+            "player":player,
+             "team": team,
+        }
+    return render(request, "tournament/player/dashboard.html",context)
+
+@login_required
+def referee_dashboard(request):
+    """Referee's dashboard"""
+    if request.user.customUser.role != "REFEREE":
+        return redirect('index')
+    return render(request, "tournament/referee/dashboard.html")
+
+@login_required
+@require_http_methods(['GET'])
+def invitations(request):
+    if request.user.customUser.role != "PLAYER":
+        return redirect('index')
+    player =request.user.customUser.player
+    invitations = player.received_invitations.filter(status='P',player=player)
+    return render(request,"partials/invitations.html#player-invite",context={
+        "invitations":invitations
+    })
+
 
 @login_required
 @require_http_methods(['GET'])
@@ -284,60 +308,64 @@ def reject_invitation(request,pk):
         return redirect('index')
     
     try:
-        invitation = Invitation.objects.get(pk=pk)
+        with transaction.atomic():
+            invitation = Invitation.objects.get(pk=pk)
 
-        # Security check
-        if invitation.player != request.user.customUser.player:
-            return not_found(request,"Invitation Not for You",f"Try again later!")
-        # Make sure it's pending
-        if invitation.status != 'P':
-            return not_found(request,"ERROR",f"Invitation has been responded")
-        
-        invitation.status='R'
-        invitation.responded_at=timezone.now()
-        invitation.save()
-        return redirect('player_dashboard')
+            # Security check
+            if invitation.player != request.user.customUser.player:
+                return HttpResponse("Invitation Not for You")
+            # Make sure it's pending
+            if invitation.status != 'P':
+                return HttpResponse("Invitation has been responded")
+            
+            invitation.status='R'
+            invitation.responded_at=timezone.now()
+            invitation.save()
+            return redirect('player-dashboard')
     except Invitation.DoesNotExist:
-        return not_found(request,"Not Found",f"Invitation not found")
+        return HttpResponse("Invitation not found")
     
 @login_required
+@require_http_methods(['POST'])
 def accept_invitation(request, pk):
     if request.user.customUser.role != "PLAYER":
         return redirect('index')
     
     try:
-        invitation = Invitation.objects.get(pk=pk)
-        
-        # Make sure this invitation belongs to the logged-in player
-        if invitation.player != request.user.customUser.player:
-            return not_found(request,"Invitation not for you",f"Try again later")
-        
-        # Make sure invitation is still pending
-        if invitation.status != 'P':
-            return not_found(request,"Already Responded",f"Inviatation is already been reponseded")
-        
-        player = invitation.player
-        
-        # Update player
-        player.team = invitation.team
-        player.isAvailable = False
-        player.save()
-        
-        # Accept this invitation
-        invitation.status = 'A'
-        invitation.responded_at = timezone.now() 
-        invitation.save()
-        
-        # Reject all other pending invitations for this player
-        player.received_invitations.filter(status='P').exclude(pk=pk).update(
-            status='R',
-            responded_at=timezone.now()
-        )
-        
-        return redirect('player_dashboard')
+        with transaction.atomic():
+            invitation = Invitation.objects.get(pk=pk)
+            
+            # Make sure this invitation belongs to the logged-in player
+            if invitation.player != request.user.customUser.player:
+                return HttpResponse("Invitation not for you")
+            
+            # Make sure invitation is still pending
+            if invitation.status != 'P':
+                return HttpResponse("Inviatation is already been reponseded")
+            
+            if not invitation.player.isAvailable:
+                return HttpResponse('already exists')
+            player = invitation.player
+            
+            # Update player
+            player.team = invitation.team
+            player.isAvailable = False
+            player.save()
+            
+            # Accept this invitation
+            invitation.status = 'A'
+            invitation.responded_at = timezone.now() 
+            invitation.save()
+            
+            # Reject all other pending invitations for this player
+            player.received_invitations.filter(status='P').exclude(pk=pk).update(
+                status='R',
+                responded_at=timezone.now()
+            )
+            return HttpResponse(status=200)
         
     except Invitation.DoesNotExist:
-        return not_found(request,"Not Found",f"Invitation Doesnt Exits")
+        return HttpResponse("Invitation Doesnt Exits")
 
 def not_found(request,title,desc):
     context = {

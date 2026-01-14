@@ -40,7 +40,7 @@
 
 <!-- Quick Actions -->
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-  <a href="{% url 'view_available_players' %}" class="bg-gradient-to-br from-sky-500 to-sky-600 rounded-lg shadow-lg p-8 text-white hover:shadow-xl transition transform hover:-translate-y-1">
+  <a href="{% url 'view-available-players' %}" class="bg-gradient-to-br from-sky-500 to-sky-600 rounded-lg shadow-lg p-8 text-white hover:shadow-xl transition transform hover:-translate-y-1">
     <h3 class="text-2xl font-bold mb-2">Browse Players</h3>
     <p class="text-sky-100">Find and invite players to your team</p>
   </a>
@@ -97,7 +97,7 @@
     <div class="text-center py-12 text-gray-500">
       <p class="text-lg font-medium">No invitations sent yet</p>
       <p class="text-sm mt-2">Browse available players and send your first invitation!</p>
-      <a href="{% url 'view_available_players' %}" class="inline-block mt-4 bg-sky-500 hover:bg-sky-600 text-white px-6 py-2 rounded-lg transition">
+      <a href="{% url 'view-available-players' %}" class="inline-block mt-4 bg-sky-500 hover:bg-sky-600 text-white px-6 py-2 rounded-lg transition">
         Browse Players
       </a>
     </div>
@@ -112,33 +112,25 @@
     {% if user.customUser.manager.team.players.all %}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {% for player in user.customUser.manager.team.players.all %}
-
-
           <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-sky-500 transition">
             <div class="flex items-center">
               <div class="w-12 h-12 rounded-full bg-sky-500 text-white font-bold flex items-center justify-center">
-                {{ player.customUser.name.0|upper }} 
+                {{ player.customUser.name.0|upper }}
               </div>
               <div class="ml-4">
-                <h4 class="font-semibold text-gray-800">{{ player.customUser.name  }}</h4>
+                <h4 class="font-semibold text-gray-800">{{ player.customUser.name }}</h4>
                 <p class="text-sm text-gray-600">{{ player.get_position_display }}</p>
                 <p class="text-xs text-gray-500">Age: {{ player.age }} • Exp: {{ player.customUser.experience }}y</p>
               </div>
-              <form action="{% url "remove_player" player.pk %}" method="post">
-                {% csrf_token %}
-                <button type="submit">remove</button>
-              </form>
             </div>
           </div>
-
-          
         {% endfor %}
       </div>
     {% else %}
       <div class="text-center py-12 text-gray-500">
         <p class="text-lg font-medium">No players in your team yet</p>
         <p class="text-sm mt-2">Browse available players and send them invitations!</p>
-        <a href="{% url 'view_available_players' %}" class="inline-block mt-4 bg-sky-500 hover:bg-sky-600 text-white px-6 py-2 rounded-lg transition">
+        <a href="{% url 'view-available-players' %}" class="inline-block mt-4 bg-sky-500 hover:bg-sky-600 text-white px-6 py-2 rounded-lg transition">
           Browse Players
         </a>
       </div>
@@ -146,3 +138,23 @@
   </div>
 {% endif %}
 {% endblock %}
+
+
+{% comment %} {% extends "tournament/base.html" %}
+{% block title %}Manager Dashboard{% endblock %}
+
+{% block body %}
+    manager
+    {% for i in invitations %}
+        {{i.manager.customUser.name}}
+        <hr>
+    {% endfor %}
+    <br>
+    {{team.teamName}}
+    <br>
+    {{manager.customUser.name}}
+    <br>
+    {{customUser.name}}
+
+
+{% endblock %} {% endcomment %}

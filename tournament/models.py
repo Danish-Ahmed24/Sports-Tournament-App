@@ -43,8 +43,13 @@ class CustomUser(models.Model):
                 raise ValidationError("Role cannot be changed once assigned")
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return f"{self.name}"
+
 class Manager(models.Model):
     customUser = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="manager")
+    def __str__(self):
+        return f"{self.customUser.name}"
 
 class Referee(models.Model):
     customUser = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="referee")
@@ -54,6 +59,8 @@ class Team(models.Model):
     manager=models.OneToOneField(Manager, on_delete=models.CASCADE,related_name="team")
 
     # players , manager
+    def __str__(self):
+        return f"{self.teamName}"
     
 class Player(models.Model):
     customUser = models.OneToOneField(CustomUser, on_delete=models.CASCADE,related_name="player")
@@ -64,7 +71,10 @@ class Player(models.Model):
     # [("AVAILABLE","Free Agent"),("SIGNED","on a team")]
     isAvailable = models.BooleanField(default=True) 
     team = models.ForeignKey(Team, on_delete=models.SET_NULL,related_name="players",blank=True,null=True)
-
+    
+    def __str__(self):
+        return f"{self.customUser.name}"
+    
 
 class Invitation(models.Model):
     manager = models.ForeignKey(Manager, on_delete=models.CASCADE, related_name="sent_invitations")
